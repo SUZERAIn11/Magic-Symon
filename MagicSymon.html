@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Magic Symon</title>
+</head>
+<body>
+    <h1>Suzerain Save Editor</h1>
+    <input type="file" id="json-file-input" accept=".json">
+    <button id="download-button" style="display: none;">Download new savefile</button>
+    <h2>Current budget: </h2>
+    <p id="budget-data"></p>
+    <h2> New budget: </h2>
+    <p contentEditable="true" id="new-budget">type your new budget here!</p>
+    <h2>Current wealth: </h2>
+    <p id="wealth-data"></p>
+    <h2> New wealth: </h2>
+    <p contentEditable="true" id="new-wealth">type your new wealth here!</p>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const jsonFileInput = document.getElementById("json-file-input");
+            const jsonDisplay = document.getElementById("json-display");
+            const downloadButton = document.getElementById("download-button");
+            const newBudget = document.getElementById("new-budget");
+            const newWealth = document.getElementById("new-wealth");
+
+
+            let modifiedData = null;
+            let vars = null;
+            let startingWealthIndex = null;
+            let startingBudgetIndex = null;
+            let variablesString = null;
+
+            jsonFileInput.addEventListener("change", function (event) {
+                const selectedFile = event.target.files[0];
+
+                if (selectedFile) {
+                    const reader = new FileReader();
+
+                    reader.onload = function () {
+                        const fileContent = reader.result;
+
+                        try {
+                            const jsonData = JSON.parse(fileContent);
+
+                            // Extract and parse the "variables" property
+                            variablesString = jsonData.variables;
+                            const variables = {};
+
+                            // Remove the "variables" property from the parsed JSON
+                            jsonData.variables;
+                            modifiedData = jsonData;
+
+
+                            //Regex match on the relevant properties
+                            var pattern = /\[\"BaseGame\.GovernmentBudget\"]=(\d+)/;
+                            var match = pattern.exec(variablesString);
+                            var pattern2 = /\[\"BaseGame\.PersonalWealth\"]=(\d+)/;
+                            var match2 = pattern2.exec(variablesString);
+
+                            //Show current values
+                            document.getElementById("budget-data").innerHTML = match[1];
+                            document.getElementById("wealth-data").innerHTML = match2[1];
+                            
+                            downloadButton.style.display = "block";
+                        } catch (error) {
+                            console.error("Error parsing JSON:", error);
+                            jsonDisplay.textContent = "Error parsing JSON.";
+                        }
+                    };
+
+                    reader.readAsText(selectedFile);
+                } else {
+                    jsonDisplay.textContent = "No file selected.";
+                }
+            });
+
+            downloadButton.addEventListener("click", function () {
+
+                const newBudget2 = newBudget.innerHTML;
+                const newWealth2 = newWealth.innerHTML;
+
+                // Regex match (again,who wrote this lousy junk?)
+                var pattern = /\[\"BaseGame\.GovernmentBudget\"]=(\d+)/;
+                var pattern2 = /\[\"BaseGame\.PersonalWealth\"]=(\d+)/;
+                // Replace the matched substring with the new number
+                var modifiedString = variablesString.replace(pattern, "[\"BaseGame.GovernmentBudget\"]=" + newBudget2);
+                var modifiedString2 = modifiedString.replace(pattern2, "[\"BaseGame.PersonalWealth\"]=" + newWealth2);
+
+
+                modifiedData.variables = modifiedString2;
+                const jsonData = JSON.stringify(modifiedData);
+                
+                //Download stuffs
+                const blob = new Blob([jsonData], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+
+                // Create a download link and trigger a click event
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "newSave.json";
+                document.body.appendChild(a);
+                a.click();
+
+                // Clean up the temporary URL and link
+                URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            });
+
+        });
+    </script>
+</body>
+</html>
