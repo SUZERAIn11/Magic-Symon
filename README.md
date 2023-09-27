@@ -6,3 +6,5 @@ Simply upload your savefile, fill in your desired wealth and budget values, and 
 
 If you wish to host this elsewhere, or modify it, feel absolutely free.
 If you can't stand how bad it looks, and you know CSS and wish to fix it, feel even more free, and even propose a change on github if you feel like it.
+
+If you have any suggestions for features you'd like to see added, or you've encountered a bug: let me know, and if i feel like it, i might fix it. (no guarantees though)
